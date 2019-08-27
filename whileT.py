@@ -6,6 +6,7 @@ Created on Tue Aug 20 19:38:29 2019
 @author: xam
 """
 import recurve 
+import cv2
 i = 1
 finalBlobList = []
 blobs = recurve.blobDetector('Gg.png', False)
@@ -48,7 +49,23 @@ for blob in blobs:
             
         compareList.append(temp)    
         
-        
+image = cv2.imread('Gg.png')       
+for blobs in finalBlobList:
+    for blob in blobs:
+       try: 
+           y,x,r = blob
+           Y = int(y)
+           X = int(x)
+           R = int(r)
+       except:
+           y,x,r = blob[0]
+           Y = int(y)
+           X = int(x)
+           R = int(r)
+       cv2.circle(image,(X, Y), R, (0,255,0)) 
+cv2.imshow('Test image',image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
         
         
         
