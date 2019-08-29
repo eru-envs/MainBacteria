@@ -7,11 +7,11 @@ Created on Tue Aug 20 19:38:29 2019
 """
 import recurve 
 import cv2
-
-fyleL = ['12.png', '13.png']
+fyleL = ['Gg.png','g.png']
 for fyle in fyleL:
     i = 1
     finalBlobList = []
+    colorL = []
     blobs = recurve.blobDetector(fyle, False)
     compareList =[]   
     for blob in blobs:
@@ -20,7 +20,7 @@ for fyle in fyleL:
         a = blob
         print('a')
         print(a)
-        l = recurve.getBlobs(a,i) 
+        l = recurve.getBlobs(a,i,fyle) 
         print('l')
         print(l) 
         i+=1      
@@ -32,11 +32,17 @@ for fyle in fyleL:
             print('d')
             print(d)
             if ((len(compareList[-1]) == len(compareList[-2])) or (len(compareList) >= 6)):
-                finalBlobList.append(d)
-                break
+                if len(d) ==1:
+                    finalBlobList.append(compareList[-2])
+                    colorL.append(len(compareList))
+                    break
+                else:    
+                    finalBlobList.append(d)
+                    colorL.append(len(compareList))
+                    break
             for b in d:
                 i+=1  
-                c =  recurve.getBlobs(b,i)
+                c =  recurve.getBlobs(b,i,fyle)
                 if c == []:
                     if temp != []:
                         compareList.append(temp)
@@ -50,25 +56,34 @@ for fyle in fyleL:
             
             compareList.append(temp)    
         
-image = cv2.imread('Gg.png')       
+image = cv2.imread('G.png')    
+i = 0   
 for blobs in finalBlobList:
+    i += 1
     for blob in blobs:
        try: 
            y,x,r = blob
-           Y = int(y)
            X = int(x)
+           Y = int(y)
            R = int(r)
-       except:
+       except:                
            y,x,r = blob[0]
            Y = int(y)
            X = int(x)
            R = int(r)
-       cv2.circle(image,(X, Y), R, (0,255,0)) 
-cv2.imshow('Test image',image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-        
-        
-        
-        
-        
+       if colorL[i] == 1:   
+           cv2.circle(image,(X, Y), R, (0,0,255))
+       if colorL[i] == 1 :   
+           cv2.circle(image,(X, Y), R, (255,0,0))   
+       if colorL[i] == 1 :   
+           cv2.circle(image,(X, Y), R, (0,255,0)) 
+       if colorL[i] == 1 :   
+           cv2.circle(image,(X, Y), R, (255,255,255))  
+       else:    
+           cv2.circle(image,(X, Y), R, (0,0,0))  
+
+#cv2.imwrite(image, fyle + '1')
+#cv2.waitKey(0)
+#        
+#        
+#        

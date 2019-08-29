@@ -36,20 +36,20 @@ trackList = []
 #files to be analyzed
 files = ['Gg.png']
 T = False
-img = plt.imread('Gg.png')
-   #threshold image by converting it to greyscale
-image_gray = rgb2gray(img)
-   #read file again. This opening is specifically used to run the file through the blob detection function
-im = Image.open('Gg.png')
-width,height = im.size
-   #change color spacr
-rgb_im = im.convert('RGB')
-blobs_dog = blob_dog(image_gray, max_sigma=50, threshold=.1)
-    #blob_dog(image_gray, max_sigma=30, threshold=.1)
-blobs_dog[:, 2] = blobs_dog[:, 2] * sqrt(2)
-if T:
-    blobs_dog = blobs_dog[0:3]
-print(len(blobs_dog))
+#img = plt.imread('Gg.png')
+#   #threshold image by converting it to greyscale
+#image_gray = rgb2gray(img)
+#   #read file again. This opening is specifically used to run the file through the blob detection function
+#im = Image.open('Gg.png')
+#width,height = im.size
+#   #change color spacr
+#rgb_im = im.convert('RGB')
+#blobs_dog = blob_dog(image_gray, max_sigma=50, threshold=.1)
+#    #blob_dog(image_gray, max_sigma=30, threshold=.1)
+#blobs_dog[:, 2] = blobs_dog[:, 2] * sqrt(2)
+#if T:
+#    blobs_dog = blobs_dog[0:3]
+#print(len(blobs_dog))
 
 
 def points_in_circle_np(radius, x0, y0):
@@ -275,11 +275,15 @@ def draw(count):
 #finalcount = [item for sublist in colorList for item in sublist]
 #draw_on_fig(Global,GlobalNLB,colorList,trackList)
 
-def getBlobs(a,b):
-         im = Image.open('Gg.png')
+def getBlobs(a,b, c):
+         im = Image.open(c)
          width,height = im.size   
          rgb_im = im.convert('RGB')      
-
+         print('width')
+         print(width)
+         print('height')
+         print(height)
+         print(c)
          blobC = b 
 #         print('processing blob' + ' ' +  str(blobC) + ' ' + 'of' + ' ' + str(len(DogBlob)) + ' ' + 'blobs' + ' ' +  'for photo' + ' ' + fNamePath)   
          #create a blank canvas in order to place the blobs on in order to eventually crop them.
@@ -291,6 +295,8 @@ def getBlobs(a,b):
          #iterate through each pixel in a given blob
          for point in pixeList:
             xcirc,ycirc  = point
+#            print(xcirc)
+#            print(ycirc)
             #try to grab each pixel, if the pixel is on the edge of the photo and an exception is thrown change the location of pixel so its in the photo
             try :
                rred, ggreen, bblue = rgb_im.getpixel((int(xcirc),int(ycirc)))
