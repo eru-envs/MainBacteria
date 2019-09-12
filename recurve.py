@@ -162,6 +162,21 @@ def blobDetector(fNamePath,T):
    if T:
       blobs_dog = blobs_dog[0:3]
    return blobs_dog
+def blobDetectorLog(fNamePath,T): 
+   img = plt.imread(fNamePath)
+   #threshold image by converting it to greyscale
+   image_gray = rgb2gray(img)
+   #read file again. This opening is specifically used to run the file through the blob detection function
+   im = Image.open(fNamePath)
+   width,height = im.size
+   #change color spacr
+   rgb_im = im.convert('RGB')
+   blobs_log = blob_log(image_gray, max_sigma=50, threshold=.1)
+    #blob_dog(image_gray, max_sigma=30, threshold=.1)
+   blobs_log[:, 2] = blobs_log[:, 2] * sqrt(2)
+   if T:
+      blobs_log = blobs_log[0:3]
+   return blobs_log
 
 def draw(count): 
    print('im in draw')
@@ -275,50 +290,39 @@ def draw(count):
 #finalcount = [item for sublist in colorList for item in sublist]
 #draw_on_fig(Global,GlobalNLB,colorList,trackList)
 
-def getBlobs(a,b, c):
+def getBlobs(a,b,c):
          im = Image.open(c)
          width,height = im.size   
          rgb_im = im.convert('RGB')      
-         print('width')
-         print(width)
-         print('height')
-         print(height)
-         print(c)
          blobC = b 
-#         print('processing blob' + ' ' +  str(blobC) + ' ' + 'of' + ' ' + str(len(DogBlob)) + ' ' + 'blobs' + ' ' +  'for photo' + ' ' + fNamePath)   
-         #create a blank canvas in order to place the blobs on in order to eventually crop them.
          blank = Image.new('RGB', (6000,6000), color = (0, 0, 0))
-         #This is the radius of a single blob on the receipt file
          y0,x0,radius = a
-         # grab every pixel in each blob
          pixeList = points_in_circle_np(radius, x0, y0)  
-         #iterate through each pixel in a given blob
          for point in pixeList:
             xcirc,ycirc  = point
-#            print(xcirc)
-#            print(ycirc)
-            #try to grab each pixel, if the pixel is on the edge of the photo and an exception is thrown change the location of pixel so its in the photo
             try :
                rred, ggreen, bblue = rgb_im.getpixel((int(xcirc),int(ycirc)))
             except :
                if xcirc >= width : 
                   xcirc = width - 1
-                  rred, ggreen, bblue = rgb_im.getpixel((int(xcirc),int(ycirc)))
                if ycirc >= height :
                   ycirc = height - 1
-                  rred, ggreen, bblue = rgb_im.getpixel((int(xcirc),int(ycirc)))
-            #put pixels on the canvas
-            blank.putpixel( (int(xcirc),int(ycirc)), (rred, ggreen, bblue))
-         blank.save("p" + str(blobC) + ".jpg")
-         img = cv2.imread("p" + str(blobC) + ".jpg")
-         #crop a rectangular box around the canvas that you are analyzing 
-         crop_img = img[int(y0-radius):int(y0+radius),int(x0-radius):int(x0+radius)]
-         cv2.imwrite("crop" + str(blobC) + ".jpg", crop_img)
-         
-    
-         blob_dog2 = blobDetector("crop" + str(blobC) + ".jpg",False)
-         imz = Image.open("crop" + str(blobC) + ".jpg")
+               rred, ggreen, bblue = rgb_im.getpixel((int(xcirc),int(ycirc)))
+            x = int(xcirc + (3000 - width/2))
+            y = int(ycirc + (3000 - height/2))
+            blank.putpixel((x,y),(rred,ggreen,bblue))
+         blank.save("p" + str(b) + ".jpg")
+         img = cv2.imread("p" + str(b) + ".jpg")
+         crop_img = img[int((y0 + (3000 - height/2) - 2 * radius)):int(y0 + (3000 - height/2) + 2 * radius),int(x0 + (3000 - width/2) - 2 * radius):int(x0 + (3000 - width/2)  + 2 * radius)]
+         cv2.imwrite(("crop" + str(b)) + ".jpg", crop_img)  
+         blob_dog2 = blobDetector("crop" + str(b) + ".jpg",False)
+         blob_dog3 = blobDetectorLog("crop" + str(b) + ".jpg",False)
+         if len(blob_dog3) >= len(blob_dog2):
+             blobs = blob_dog3
+         else:
+             blobs = blob_dog2
+         imz = Image.open("crop" + str(b) + ".jpg")
          xb,yb = imz.size
-         nbl = normalizeCirc(xb,yb,x0,y0,blob_dog2)
+         nbl = normalizeCirc(xb,yb,x0,y0,blobs)
        
          return nbl
