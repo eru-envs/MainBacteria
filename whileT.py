@@ -7,6 +7,17 @@ Created on Tue Aug 20 19:38:29 2019
 """
 import recurve 
 import cv2
+
+
+
+def getRads(blobs):
+    radL = []
+    for blob in blobs:
+        for b in blob
+            y,x,r = blob
+            R = int(r)
+            radL.append(R)
+    return radL    
 fyleL = ['Gg.png']
 count = 0
 for fyle in fyleL:
@@ -31,16 +42,16 @@ for fyle in fyleL:
             i+=1  
             temp = []
             d = compareList[-1]
-            if ((len(compareList[-1]) == len(compareList[-2])) or (len(compareList) >=6)):
-                if len(d) ==1 and len(compareList[-1]) == len(compareList[-2]):
-                    finalBlobList.append(compareList[-2])
-                    colorL.append(len(compareList)-1)
-                    print("second recurve corrected")
-                    break
-                else:    
-                    finalBlobList.append(d)
-                    colorL.append(len(compareList))
-                    break
+            if ((len(compareList[-1]) == len(compareList[-2])) or (len(compareList) >=2)):
+#                if len(d) ==1 and len(compareList[-1]) == len(compareList[-2]):
+#                    finalBlobList.append(compareList[-2])
+#                    colorL.append(len(compareList)-1)
+#                    print("second recurve corrected")
+#                    break
+#                else:    
+                 finalBlobList.append(d)
+                 colorL.append(len(compareList))
+                 break
             for b in d:
                 i+=1  
                 c =  recurve.getBlobs(b,i,fyle)
@@ -60,7 +71,11 @@ for fyle in fyleL:
                     print(len(temp))
             if temp != []:        
                 compareList.append(temp)    
-        
+             
+    radL = getRads(nbl)
+    x1 = statistics.mean(radL)
+    pdev1 = statistics.pstdev(radL)
+
     image = cv2.imread(fyle)    
     for blobs, color in zip(finalBlobList, colorL):
         for blob in blobs:
@@ -74,6 +89,12 @@ for fyle in fyleL:
 #               Y = int(y)
 #               X = int(x)
 #               R = int(r)
+           
+           if(x1!=[] and pdev1!=[]):
+              for blob in nbl:
+                  if R<=(x1-pdev1):
+                      continue
+
            if color == 1:   
                cv2.circle(image,(X, Y), R, (255,255,255))
                print("working")
@@ -84,16 +105,16 @@ for fyle in fyleL:
                cv2.circle(image,(X, Y), R, (0,255,0))
                print("a")
            elif color == 4 :   
-               cv2.circle(image,(X, Y), R, (150,255,255))  
+               cv2.circle(image,(X, Y), R, (0,255,255))  
                print("b")
            elif color == 5 :   
                cv2.circle(image,(X, Y), R, (255,255,0))   
                print("c")
            else:    
-               cv2.circle(image,(X, Y), R, (0,255,255)) 
+               cv2.circle(image,(X, Y), R, (0,0,0)) 
                print("d")
                print(color)
-    cv2.imwrite(("output" + str(4)) + ".jpg", image)  
+    cv2.imwrite(("output" +str(8) ) + ".jpg", image)  
           
 #cv2.imwrite(image, fyle + '1')
 #cv2.waitKey(0)

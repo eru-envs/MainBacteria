@@ -24,6 +24,8 @@ import cv2
 import sys
 from pylab import figure, text, scatter, show
 import os
+import statistics
+
 
 #intialize lists
 DogBlob = [] 
@@ -289,13 +291,28 @@ def draw(count):
 #
 #finalcount = [item for sublist in colorList for item in sublist]
 #draw_on_fig(Global,GlobalNLB,colorList,trackList)
-
+def getRads(blobs):
+    radL = []
+    for blob in blobs:
+        y,x,r = blob
+        R = int(r)
+        radL.append(R)
+    return radL    
 def getBlobs(a,b,c):
          im = Image.open(c)
          width,height = im.size   
          rgb_im = im.convert('RGB')      
-         blobC = b 
+#         blobC = b 
          blank = Image.new('RGB', (6000,6000), color = (0, 0, 0))
+         test = set(list(blank.getdata()))
+         if len(test)>1:
+             print('multiple elements')
+             print('test')
+             print(test)
+         if (test != (0,0,0)):
+             print('not black')
+             print('test')
+             print(test)
          y0,x0,radius = a
          pixeList = points_in_circle_np(radius, x0, y0)  
          for point in pixeList:
@@ -315,14 +332,29 @@ def getBlobs(a,b,c):
          img = cv2.imread("p" + str(b) + ".jpg")
          crop_img = img[int((y0 + (3000 - height/2) - 2 * radius)):int(y0 + (3000 - height/2) + 2 * radius),int(x0 + (3000 - width/2) - 2 * radius):int(x0 + (3000 - width/2)  + 2 * radius)]
          cv2.imwrite(("crop" + str(b)) + ".jpg", crop_img)  
-         blob_dog2 = blobDetector("crop" + str(b) + ".jpg",False)
+#         blob_dog2 = blobDetector("crop" + str(b) + ".jpg",False)
          blob_dog3 = blobDetectorLog("crop" + str(b) + ".jpg",False)
-         if len(blob_dog3) >= len(blob_dog2):
-             blobs = blob_dog3
-         else:
-             blobs = blob_dog2
+#         if len(blob_dog3) >= len(blob_dog2):
+#             blobs = blob_dog3
+#         else:
+#             blobs = blob_dog2
          imz = Image.open("crop" + str(b) + ".jpg")
          xb,yb = imz.size
-         nbl = normalizeCirc(xb,yb,x0,y0,blobs)
-       
+         nbl = normalizeCirc(xb,yb,x0,y0,blob_dog3)
+#         radL = getRads(nbl)
+#         try:
+#             x1 = statistics.mean(radL)
+#         except:
+#             x1 = []
+#         try:
+#             pdev1 = statistics.pstdev(radL)
+#         except:
+#             pdev1 = []
+#         if(x1!=[] and pdev1!=[]):
+#              for blob in nbl:
+#                  y,x,r = blob
+#                  R = int(r)
+#                  if R<=(x1-pdev1):
+#                      nbl.remove(blob)
+#                      print("removed")
          return nbl
