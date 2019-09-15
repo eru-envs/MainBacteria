@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Aug 20 18:54:22 2019
-
 @author: xam
 """
 
@@ -196,13 +195,19 @@ def checkBlack(blank):
    if len(test)>1:
       raise Exception('The compnents of the set are {}'.format(test))
          
-
-
+def getUnique(l1,l2):
+    print(len(l2))
+    for val in l1:
+        if val in l2:
+            l2.remove(val)
+    print("lens")        
+    print(len(l1), len(l2))        
+    return l2        
 
 
 def getBlobs(blob,b,c,blank,blank2):
          im = Image.open(c)
-         img = Image.open('b' + str(b) + '.png')
+         img = blank
          print('b' + str(b) + '.png')
          pixdata = img.load()
          width,height = im.size   
@@ -210,7 +215,9 @@ def getBlobs(blob,b,c,blank,blank2):
 #         blobC = b 
          checkBlack(blank)
          y0,x0,radius = blob
-         pixeList = points_in_circle_np(radius, x0, y0)  
+         pixeList = points_in_circle_np(radius, x0, y0) 
+         combList = pixeList = points_in_circle_np((2*radius), x0, y0) 
+         blackList = getUnique(pixeList,combList)
          for point in pixeList:
             xcirc,ycirc  = point
             try :
@@ -224,6 +231,19 @@ def getBlobs(blob,b,c,blank,blank2):
             x = int(xcirc + (3000 - width/2))
             y = int(ycirc + (3000 - height/2))
             pixdata[x, y] = (rred, ggreen, bblue, 255)
+         for point in blackList:
+            xcirc,ycirc  = point
+#            try :
+#                rred, ggreen, bblue = rgb_im.getpixel((int(xcirc),int(ycirc)))
+#            except :
+#               if xcirc >= width : 
+#                     xcirc = width - 1
+#               if ycirc >= height :
+#                     ycirc = height - 1
+#               rred, ggreen, bblue = rgb_im.getpixel((int(xcirc),int(ycirc)))
+            x = int(xcirc + (3000 - width/2))
+            y = int(ycirc + (3000 - height/2))
+            pixdata[x, y] = (0, 0, 0, 255)
          img.save("p" + str(b) + ".jpg")
          img = cv2.imread("p" + str(b) +".jpg")
          crop_img = img[int((y0 + (3000 - height/2) - 2 * radius)):int(y0 + (3000 - height/2) + 2 * radius),int(x0 + (3000 - width/2) - 2 * radius):int(x0 + (3000 - width/2)  + 2 * radius)]
