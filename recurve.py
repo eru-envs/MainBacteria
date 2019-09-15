@@ -38,21 +38,6 @@ trackList = []
 #files to be analyzed
 files = ['Gg.png']
 T = False
-#img = plt.imread('Gg.png')
-#   #threshold image by converting it to greyscale
-#image_gray = rgb2gray(img)
-#   #read file again. This opening is specifically used to run the file through the blob detection function
-#im = Image.open('Gg.png')
-#width,height = im.size
-#   #change color spacr
-#rgb_im = im.convert('RGB')
-#blobs_dog = blob_dog(image_gray, max_sigma=50, threshold=.1)
-#    #blob_dog(image_gray, max_sigma=30, threshold=.1)
-#blobs_dog[:, 2] = blobs_dog[:, 2] * sqrt(2)
-#if T:
-#    blobs_dog = blobs_dog[0:3]
-#print(len(blobs_dog))
-
 
 def points_in_circle_np(radius, x0, y0):
     ''' Given the center and radius collect all the points that lie inside the given circle'''
@@ -180,17 +165,14 @@ def blobDetectorLog(fNamePath,T):
       blobs_log = blobs_log[0:3]
    return blobs_log
 
-def draw(count): 
-   print('im in draw')
+def draw(count,bloblist): 
    img = plt.imread("crop" + str(count) + ".jpg")
    image_gray = rgb2gray(img)
    im = Image.open("crop" + str(count) + ".jpg")
    width,height = im.size
-   bloblist  = blob_dog(image_gray, max_sigma=50, threshold=.1)
-   bloblist[:, 2] = bloblist[:, 2] * sqrt(2) 
    fig,ax = plt.subplots(1)
    ax.imshow(img)
-   for blob in bloblist :
+   for blob in bloblist: 
       y,x,r = blob
       c = plt.Circle((x, y), r, color='yellow', linewidth=2, fill=False) 
       center =  plt.Circle((x, y), 1, color='blue', linewidth=2, fill=True)
@@ -198,122 +180,36 @@ def draw(count):
       ax.add_patch(center)
    fig.savefig('samlpe' + str(count) + '.png')
             
-    
 
 
-## analyze every file in files
-#for fNamePath in files:
-#   MCHb = NPb = BGDb = 0 
-#   MCT = NPT = BGT = 0
-#   #make sure that the file that is being grabbed is a photograph
-#   if fNamePath.endswith(".png") or fNamePath.endswith(".jpg"):
-#      # tell the user which file is being processed
-#      print("processing" + ' ' +  fNamePath)
-#      DogBlob = blobDetector(fNamePath,True)
-#      print(DogBlob)
-#      #keep an index of what blob in blob log you're looping through 
-#      blobC = 1
-#      #open images and convert their color coordinate spaces so the program can extract the rgb values subsequently
-#      im = Image.open(fNamePath)
-#      width,height = im.size
-#      rgb_im = im.convert('RGB')      
-#      # process second iteration of blobs
-#      for puppy in DogBlob:
-#         print('processing blob' + ' ' +  str(blobC) + ' ' + 'of' + ' ' + str(len(DogBlob)) + ' ' + 'blobs' + ' ' +  'for photo' + ' ' + fNamePath)   
-#         #create a blank canvas in order to place the blobs on in order to eventually crop them.
-#         blank = Image.new('RGB', (6000,6000), color = (0, 0, 0))
-#         #This is the radius of a single blob on the receipt file
-#         y0,x0,radius = puppy
-#         # grab every pixel in each blob
-#         pixeList = points_in_circle_np(radius, x0, y0)  
-#         #iterate through each pixel in a given blob
-#         for point in pixeList:
-#            xcirc,ycirc  = point
-#            #try to grab each pixel, if the pixel is on the edge of the photo and an exception is thrown change the location of pixel so its in the photo
-#            try :
-#               rred, ggreen, bblue = rgb_im.getpixel((int(xcirc),int(ycirc)))
-#            except :
-#               if xcirc >= width : 
-#                  xcirc = width - 1
-#                  rred, ggreen, bblue = rgb_im.getpixel((int(xcirc),int(ycirc)))
-#               if ycirc >= height :
-#                  ycirc = height - 1
-#                  rred, ggreen, bblue = rgb_im.getpixel((int(xcirc),int(ycirc)))
-#            #put pixels on the canvas
-#            blank.putpixel( (int(xcirc),int(ycirc)), (rred, ggreen, bblue))
-#         blank.save("p" + str(blobC) + ".jpg")
-#         img = cv2.imread("p" + str(blobC) + ".jpg")
-#         #crop a rectangular box around the canvas that you are analyzing 
-#         crop_img = img[int(y0-radius):int(y0+radius),int(x0-radius):int(x0+radius)]
-#         try: 
-#            cv2.imwrite("crop" + str(blobC) + ".jpg", crop_img)
-#            cv2.waitKey(0)
-#            blob_dog2 = blobDetector("crop" + str(blobC) + ".jpg",False)
-#         except: 
-#            continue 
-#         draw(blobC) 
-#         #run cropped image through the blob detector
-#         # if the second iteration blob detector comes up empty then 
-#         # count classify the original blob
-#         if len(blob_dog2) == 0:
-#            MCHE,NPE,GDPE,BLs = colonyCounter([puppy],fNamePath,True) 
-#            trackList.append(1)
-#         else:
-#            print('puppy') 
-#            print(puppy)
-#            print('blob_dog')
-#            print(blob_dog2) 
-#            MCH,NP,GDP,BLs = colonyCounter(blob_dog2,"crop" + str(blobC) + ".jpg",True)
-#            trackList.append(2)
-#         '''
-#         if len(blob_dog2) == 0 and 'MCH' in locals():
-#            MCT = MCH + MCHE
-#            NPT = NP + NPE
-#            BGT = GDP + GDPE 
-#         elif 'MCH' in locals():
-#            MCT = MCH
-#            NPT = NP
-#            BGT = GDP
-#         else:
-#            MCT = MCHE
-#            NPT = NPE 
-#            BGT = GDPE
-#         '''
-#         # get the dimensions of the cropped image
-#         imz = Image.open("crop" + str(blobC) + ".jpg")
-#         xb,yb = imz.size
-#         nbl = normalizeCirc(xb,yb,x0,y0,blob_dog2)
-#         
-#         GlobalNLB.append(nbl)
-#         colorList.append(BLs)
-#         Global.append([x0,y0,radius,MCT,NPT,BGT,DogBlob,nbl,blobC,BLs])
-#         blobC += 1
-#
-#finalcount = [item for sublist in colorList for item in sublist]
-#draw_on_fig(Global,GlobalNLB,colorList,trackList)
 def getRads(blobs):
     radL = []
     for blob in blobs:
         y,x,r = blob
         R = int(r)
         radL.append(R)
-    return radL    
-def getBlobs(a,b,c):
+    return radL  
+
+def checkBlack(blank):
+   test = set(list(blank.getdata()))
+   print(test)
+   if len(test)>1:
+      raise Exception('The compnents of the set are {}'.format(test))
+         
+
+
+
+
+def getBlobs(blob,b,c,blank,blank2):
          im = Image.open(c)
+         img = Image.open('b' + str(b) + '.png')
+         print('b' + str(b) + '.png')
+         pixdata = img.load()
          width,height = im.size   
          rgb_im = im.convert('RGB')      
 #         blobC = b 
-         blank = Image.new('RGB', (6000,6000), color = (0, 0, 0))
-         test = set(list(blank.getdata()))
-         if len(test)>1:
-             print('multiple elements')
-             print('test')
-             print(test)
-         if (test != (0,0,0)):
-             print('not black')
-             print('test')
-             print(test)
-         y0,x0,radius = a
+         checkBlack(blank)
+         y0,x0,radius = blob
          pixeList = points_in_circle_np(radius, x0, y0)  
          for point in pixeList:
             xcirc,ycirc  = point
@@ -327,34 +223,16 @@ def getBlobs(a,b,c):
                rred, ggreen, bblue = rgb_im.getpixel((int(xcirc),int(ycirc)))
             x = int(xcirc + (3000 - width/2))
             y = int(ycirc + (3000 - height/2))
-            blank.putpixel((x,y),(rred,ggreen,bblue))
-         blank.save("p" + str(b) + ".jpg")
-         img = cv2.imread("p" + str(b) + ".jpg")
+            pixdata[x, y] = (rred, ggreen, bblue, 255)
+         img.save("p" + str(b) + ".jpg")
+         img = cv2.imread("p" + str(b) +".jpg")
          crop_img = img[int((y0 + (3000 - height/2) - 2 * radius)):int(y0 + (3000 - height/2) + 2 * radius),int(x0 + (3000 - width/2) - 2 * radius):int(x0 + (3000 - width/2)  + 2 * radius)]
          cv2.imwrite(("crop" + str(b)) + ".jpg", crop_img)  
 #         blob_dog2 = blobDetector("crop" + str(b) + ".jpg",False)
          blob_dog3 = blobDetectorLog("crop" + str(b) + ".jpg",False)
-#         if len(blob_dog3) >= len(blob_dog2):
-#             blobs = blob_dog3
-#         else:
-#             blobs = blob_dog2
          imz = Image.open("crop" + str(b) + ".jpg")
+         draw(b,blob_dog3)
          xb,yb = imz.size
          nbl = normalizeCirc(xb,yb,x0,y0,blob_dog3)
-#         radL = getRads(nbl)
-#         try:
-#             x1 = statistics.mean(radL)
-#         except:
-#             x1 = []
-#         try:
-#             pdev1 = statistics.pstdev(radL)
-#         except:
-#             pdev1 = []
-#         if(x1!=[] and pdev1!=[]):
-#              for blob in nbl:
-#                  y,x,r = blob
-#                  R = int(r)
-#                  if R<=(x1-pdev1):
-#                      nbl.remove(blob)
-#                      print("removed")
+          
          return nbl

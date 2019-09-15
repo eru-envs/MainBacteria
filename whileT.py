@@ -5,102 +5,123 @@ Created on Tue Aug 20 19:38:29 2019
 
 @author: xam
 """
+from PIL import Image
 import recurve 
 import cv2
-
-
+import sys
+import statistics
 
 def getRads(blobs):
     radL = []
     for blob in blobs:
-        for b in blob
-            y,x,r = blob
-            R = int(r)
-            radL.append(R)
+        for b in blob:  
+            y,x,r = b
+            radL.append(int(r))
+    return radL 
+
+def getRadishes(blobs):
+    radL = []
+    for blob in blobs:
+        y,x,r = blob 
+        radL.append(int(r))
     return radL    
-fyleL = ['Gg.png']
+def fuckSmallCircles(lyst,whole):
+   newlyst = []
+   rads = getRadishes(whole)
+   x1 = statistics.mean(rads)
+   y1 = statistics.pstdev(rads)
+   
+   for blobs in lyst:
+      for blob in blobs:
+         y,x,r = blob 
+         if int(r) <= (x1-2*y1):
+            print('888888888888888888888888888')
+            print(r)
+            print(x1-y1)
+            print('888888888888888888888888888')
+            print(blob)
+            blobs.remove(blob)
+         newlyst.append(blobs)
+   return newlyst
+
+#load files 
+
+from os import listdir
+from os.path import isfile, join
+mypath = '/Users/shankin-clarke/Desktop/dect/uf'
+#file identifier 
 count = 0
+fyleL = ['t.png']
 for fyle in fyleL:
+    whole = recurve.blobDetectorLog(fyle,False)
+    #index value passed to make sure that you will never have the same number for cropped photos
     i = 1
     finalBlobList = []
+    #number of recursions and the corresponding color for the printed circle
     colorL = []
     blobs = recurve.blobDetector(fyle, False)
+    
     compareList =[]
     count += 1
     for blob in blobs:
         compareList =[]
-        compareList.append([blob]) 
-        a = blob
-        l = recurve.getBlobs(a,i,fyle) 
+        compareList.append([blob])
+        blank2 = Image.new('RGB', (6000,6000), color = (255, 255, 255))
+        blank = Image.new('RGB', (6000,6000), color = (0, 0, 0))
+        l = recurve.getBlobs(blob,i,fyle,blank,blank2)
         if l == []:
-            finalBlobList.append([a])
+            finalBlobList.append([blob])
             colorL.append(1)
             continue
-        i+=1      
+        i += 1      
         compareList.append(l)
+        
         while True:
             i+=1  
             temp = []
+            #d : list of blobs from last recursion
+            #compareList = fuckSmallCircles(compareList,whole,True)
+            whole = recurve.blobDetectorLog(fyle,False)
+            compareList = fuckSmallCircles(compareList,whole)
             d = compareList[-1]
+            
+         
             if ((len(compareList[-1]) == len(compareList[-2])) or (len(compareList) >=2)):
-#                if len(d) ==1 and len(compareList[-1]) == len(compareList[-2]):
-#                    finalBlobList.append(compareList[-2])
-#                    colorL.append(len(compareList)-1)
-#                    print("second recurve corrected")
-#                    break
-#                else:    
                  finalBlobList.append(d)
                  colorL.append(len(compareList))
                  break
             for b in d:
-                i+=1  
-                c =  recurve.getBlobs(b,i,fyle)
-                print("len")
-                print(len(c))
+                i+=1
+                blank = Image.new('RGB', (6000,6000), color = (0, 0, 0))
+                blank2 =  Image.new('RGB', (6000,6000), color = (255, 255, 255)) 
+                c =  recurve.getBlobs(b,i,fyle,blanki,blank2)
                 if c == []:
+                    temp.extend(b)
                     continue
-#                    if temp != []:
-#                        compareList.append(temp)
-#                        colorL.append(len(compareList))
-#                    else:
-#                        compareList.append(d)
-#                        colorL.append(len(compareList))
                 else:
                     temp.extend(c)
-                    print("lenT")
-                    print(len(temp))
             if temp != []:        
                 compareList.append(temp)    
-             
-    radL = getRads(nbl)
-    x1 = statistics.mean(radL)
-    pdev1 = statistics.pstdev(radL)
+    
 
-    image = cv2.imread(fyle)    
+    image = cv2.imread(fyle) 
+    image2 = cv2.imread(fyle)
+    RadL = getRads(finalBlobList)
+    x1 = statistics.mean(RadL)
+    y1 = statistics.pstdev(RadL)  
     for blobs, color in zip(finalBlobList, colorL):
         for blob in blobs:
-#           try: 
            y,x,r = blob
            X = int(x)
            Y = int(y)
            R = int(r)
-#           except:                
-#               y,x,r = blob[0]
-#               Y = int(y)
-#               X = int(x)
-#               R = int(r)
-           
-           if(x1!=[] and pdev1!=[]):
-              for blob in nbl:
-                  if R<=(x1-pdev1):
-                      continue
-
+           #if int(R) <= (x1-y1):           
+              #continue
+           print(len(finalBlobList),x1,y1)
            if color == 1:   
                cv2.circle(image,(X, Y), R, (255,255,255))
-               print("working")
            elif color == 2 :   
                cv2.circle(image,(X, Y), R, (255,0,255)) 
-               print ("not working")
            elif color == 3 :   
                cv2.circle(image,(X, Y), R, (0,255,0))
                print("a")
@@ -114,12 +135,13 @@ for fyle in fyleL:
                cv2.circle(image,(X, Y), R, (0,0,0)) 
                print("d")
                print(color)
-    cv2.imwrite(("output" +str(8) ) + ".jpg", image)  
-          
-#cv2.imwrite(image, fyle + '1')
-#cv2.waitKey(0)
-#flat_list = [item for sublist in photo for item in sublist]
+    print("final" + str(count) + ".jpg")
+    cv2.imwrite("final" + str(count) + ".jpg", image)  
+    blobs = recurve.blobDetector(fyle, False)
+    for blob in blobs:
+       y,x,r = blob
+       cv2.circle(image2,(int(x),int(y)),int(r),(0,0,255))
+    cv2.imwrite('finalrecurv1' + str(count) +  ".jpg",image2)
+        
 
-#        
-#        
-#        
+          
